@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Pivot\IngredientRecipe;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
+/**
+ * @mixin IdeHelperIngredient
+ */
+class Ingredient extends Model
+{
+    use HasFactory;
+
+    public function recipes(): BelongsToMany
+    {
+        return $this->belongsToMany(Recipe::class)->using(IngredientRecipe::class);
+    }
+}
