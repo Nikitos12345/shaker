@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 /**
+ * @phpstan-ignore-next-line
  * @mixin IdeHelperUser
  */
 class User extends Authenticatable

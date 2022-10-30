@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 /**
+ * @phpstan-ignore-next-line
  * @mixin IdeHelperIngredientRecipe
  */
 class IngredientRecipe extends Pivot

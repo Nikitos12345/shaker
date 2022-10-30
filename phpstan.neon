@@ -1,0 +1,11 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+parameters:
+    paths:
+        - app
+    level: 9
+    ignoreErrors:
+    excludePaths:
+    checkGenericClassInNonGenericObjectType: false
+    tmpDir:
+        ./storage/logs/phpstan
