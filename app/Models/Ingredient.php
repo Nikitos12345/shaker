@@ -17,7 +17,14 @@ class Ingredient extends Model
     use HasFactory;
     use HasTranslations;
 
-    public array $translatable = ['name', 'description'];
+    public array $translatable = ['name', 'description', 'taste'];
+
+    protected $fillable = [
+        'name',
+        'description',
+        'taste',
+
+    ];
 
     public function recipes(): BelongsToMany
     {

@@ -17,7 +17,7 @@ class Recipe extends Model
     use HasFactory;
     use HasTranslations;
 
-    public array $translatable = ['name', 'description', 'details'];
+    public array $translatable = ['name', 'description', 'preparation', 'glass', 'taste', 'category'];
 
     public function ingredients(): BelongsToMany
     {

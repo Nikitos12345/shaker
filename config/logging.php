@@ -117,6 +117,11 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'cocktails-parser' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/parser/cocktails.log'),
+        ],
     ],
 
 ];

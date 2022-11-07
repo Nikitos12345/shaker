@@ -20,9 +20,11 @@ class IngredientRecipe extends Pivot
         'recipe_id',
         'volume',
         'volume_type',
+        'optional',
     ];
     protected $casts = [
         'volume_type' => VolumeTypeEnum::class,
         'volume' => 'float',
+        'optional' => 'bool',
     ];
 }
