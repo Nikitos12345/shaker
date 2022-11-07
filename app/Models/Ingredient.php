@@ -6,6 +6,7 @@ use App\Models\Pivot\IngredientRecipe;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Spatie\Translatable\HasTranslations;
 
 /**
  * @phpstan-ignore-next-line
@@ -14,6 +15,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Ingredient extends Model
 {
     use HasFactory;
+    use HasTranslations;
+
+    public array $translatable = ['name', 'description'];
 
     public function recipes(): BelongsToMany
     {
