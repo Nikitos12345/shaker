@@ -20,16 +20,12 @@ class BinarySearchTest extends TestCase
 
         $result = $binarySearch($needle, $array);
 
-        if ($needle === 'y' && $needle !== $result) {
-            dd(func_get_args(), $result);
-        }
-
         $this->assertSame($needle, $result);
     }
 
     public function simpleValuesDataProvider(): array
     {
-        $arrayOfNumbers = range(1, 1000);
+        $arrayOfNumbers = range(1, 100);
         shuffle($arrayOfNumbers);
 
         $arrayOfStrings = range('a', 'z');
@@ -49,7 +45,7 @@ class BinarySearchTest extends TestCase
                 [1, 2.3, 1.2, 3.3, 4]
             ],
             [
-                988,
+                98,
                 $arrayOfNumbers,
             ],
             [
@@ -226,6 +222,50 @@ class BinarySearchTest extends TestCase
                     ['key' => true]
                 ],
                 'key'
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider arrayOfObjectsDataProvider
+     *
+     * @param  string|int|float  $needle
+     * @param  array  $array
+     * @param  string  $key
+     * @return void
+     */
+    public function test_return_object_if_is_array_of_object(string|int|float $needle, array $array, string $key): void
+    {
+        $binarySearch = new BinarySearch();
+
+        $expectedResult = new stdClass();
+        $expectedResult->$key = $needle;
+
+        $result = $binarySearch($needle, $array, $key);
+
+        $this->assertNotEquals(false, $result);
+
+        $this->assertSame($expectedResult->$key, $result->$key);
+    }
+
+    public function arrayOfObjectsDataProvider(): array
+    {
+        $ex1 = new stdClass();
+        $ex1->name = 'test';
+        $ex2 = new stdClass();
+        $ex2->name = '1';
+        $ex3 = new stdClass();
+        $ex3->name = '2';
+
+        return [
+            [
+                'test',
+                [
+                    $ex1,
+                    $ex2,
+                    $ex3,
+                ],
+                'name'
             ]
         ];
     }

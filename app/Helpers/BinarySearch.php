@@ -11,119 +11,126 @@ use InvalidArgumentException;
 
 final class BinarySearch implements ArraySearchContract
 {
+    /** @var array<string|int|float|object|array<string|int|float>> $haystack */
+    public array $haystack = [];
+    public string|int|float $needle = '';
+    public string $key = '';
+
     /**
      * @param  string|int|float  $needle
-     * @param  array<string|int|float>  $haystack
+     * @param  array<string|int|float|object|array<string|int|float>>  $haystack
      * @param  string  $key
-     * @return string|int|float|array<string|int|float>|false|null
+     * @phpstan-ignore-next-line
+     * @return float|string|int|false|object|null|array
      */
     public function __invoke(
         string|int|float $needle,
         array $haystack,
         string $key = ''
-    ): string|int|float|array|false|null {
+    ): array|float|string|int|false|null|object {
         if (empty($haystack)) {
             return false;
         }
 
-        $haystack = $this->sort($haystack, $key);
+        $this->haystack = $this->sort($haystack, $key);
+        $this->needle = $needle;
+        $this->key = $key;
 
         try {
-            $result = $this->search($needle, $haystack, $key);
+            return $this->search();
         } catch (ItemNotFoundException|InvalidArgumentException) {
             return null;
         }
-
-        return $result;
     }
 
     /**
-     * @param  array<string|int|float|array<string|int|float>>  $sortableArray
+     * @param  array<string|int|float|array<string|int|float>|object>  $sortableArray
      * @param  string  $key
-     * @return array<string|int|float|array<string|int|float>>
+     * @return array<string|int|float|array<string|int|float>|object>
+     * @todo Переписать на нормальную сортировку
+     *
      */
     private function sort(array $sortableArray, string $key): array
     {
         if (empty($key)) {
-            return Arr::sort($sortableArray);
+            return array_values(Arr::sort($sortableArray));
         }
 
-        return Arr::sort(
-            $sortableArray,
-            fn(mixed $value) => is_array($value) ? $value[$key] : $value
+
+        return array_values(
+            Arr::sort(
+                $sortableArray,
+                fn(mixed $value) => is_array($value) ? $value[$key] : (is_object($value) ? $value->$key : $value)
+            )
         );
     }
 
     /**
-     * @param  string|int|float  $needle
-     * @param  array<string|int|float|array<string|int|float>>  $haystack
-     * @param  string  $key
-     * @return string|int|float|array<string|int|float>|false
-     * @throws ItemNotFoundException
+     * @return string|int|float|array<string|int|float|false|object>|false|object
      */
-    private function search(string|int|float $needle, array $haystack, string $key): string|int|float|array|false
+    private function search(): string|int|float|array|false|object
     {
-        $arrayLength = count($haystack);
+        $high = count($this->haystack) - 1;
+        $low = 0;
 
-        if ($arrayLength === 1) {
-            $result = $this->getMiddleValues($haystack, $key, 0);
+        while ($low <= $high) {
+            $halfArrayLength = intval(($low + $high) / 2);
 
-            return $result === $needle ? $result : false;
+            $middleValues = $this->getMiddleValue($halfArrayLength);
+
+            if ($this->needle === $middleValues) {
+                return $this->haystack[$halfArrayLength];
+            }
+
+            if ($this->needle > $middleValues) {
+                $low = $halfArrayLength + 1;
+                continue;
+            }
+
+            $high = $halfArrayLength - 1;
         }
 
-        $halfArrayLength = intval(ceil($arrayLength / 2));
-
-        $middleValues = $this->getMiddleValues($haystack, $key, $halfArrayLength);
-
-        if ($needle === $middleValues) {
-            return $haystack[$halfArrayLength];
-        }
-
-        if ($needle > $middleValues) {
-            $needleChunk = array_splice($haystack, $halfArrayLength, $arrayLength);
-            return $this->search($needle, $needleChunk, $key);
-        }
-
-        $needleChunk = array_splice($haystack, 0, $halfArrayLength);
-
-        return $this->search($needle, $needleChunk, $key);
+        return false;
     }
 
     /**
-     * @param  array<string|int|float|array<string|int|float>>  $haystack
-     * @param  string  $key
-     * @param  int  $halfArrayLength
-     * @return string|int|float|array<string|int|float>
+     * @param  int  $middleKey
+     * @return string|int|float|array<string|int|float>|object
      */
-    private function getMiddleValues(array $haystack, string $key, int $halfArrayLength): string|int|float|array
+    private function getMiddleValue(int $middleKey): string|int|float|array|object
     {
-        $middleValue = $haystack[$halfArrayLength];
+        $middleValue = $this->haystack[$middleKey];
 
-        if (empty($key)) {
+        if (empty($this->key)) {
             return $middleValue;
         }
 
-        if (!is_array($middleValue)) {
+        if (is_numeric($middleValue)) {
+            throw new InvalidArgumentException();
+        }
+
+        if (is_string($middleValue)) {
+            throw new InvalidArgumentException();
+        }
+
+        if (is_array($middleValue) && !isset($middleValue[$this->key])) {
             throw new ItemNotFoundException();
         }
 
-        if (!array_key_exists($key, $middleValue)) {
+        if (is_object($middleValue) && !isset($middleValue->{$this->key})) {
             throw new ItemNotFoundException();
         }
 
-        $middleValue = $middleValue[$key];
+        $middleValue = is_array($middleValue) ? $middleValue[$this->key] : $middleValue->{$this->key};
 
-        /** @phpstan-ignore-next-line */
         if (is_object($middleValue)) {
             throw new InvalidArgumentException();
         }
 
-        /** @phpstan-ignore-next-line */
         if (is_array($middleValue)) {
             throw new InvalidArgumentException();
         }
 
-        /** @phpstan-ignore-next-line */
         if (is_bool($middleValue)) {
             throw new InvalidArgumentException();
         }
