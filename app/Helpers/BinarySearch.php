@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Interfaces\ArraySearchContract;
+use App\Interfaces\ArraySortContract;
 use App\Traits\ValidateUsableValue;
 use Illuminate\Support\ItemNotFoundException;
 use InvalidArgumentException;
@@ -19,6 +20,12 @@ final class BinarySearch implements ArraySearchContract
     public array $haystack = [];
     public string|int|float $needle = '';
     public string $key = '';
+    private ArraySortContract $sorter;
+
+    public function __construct()
+    {
+        $this->sorter = app(ArraySortContract::class);
+    }
 
     /**
      * @param  string|int|float  $needle
@@ -36,7 +43,7 @@ final class BinarySearch implements ArraySearchContract
             return false;
         }
 
-        $this->haystack = $this->sort($haystack, $key);
+        $this->haystack = $this->sorter->sort($haystack, $key);
         $this->needle = $needle;
         $this->key = $key;
 
@@ -45,20 +52,6 @@ final class BinarySearch implements ArraySearchContract
         } catch (ItemNotFoundException|InvalidArgumentException) {
             return null;
         }
-    }
-
-    /**
-     * @param  array<string|int|float|array<string|int|float>|object>  $sortableArray
-     * @param  string  $key
-     * @return array<string|int|float|array<string|int|float>|object>
-     * @todo Переписать на нормальную сортировку
-     *
-     */
-    private function sort(array $sortableArray, string $key): array
-    {
-        $qsort = new QuickSort();
-
-        return $qsort->sort($sortableArray, $key);
     }
 
     /**
