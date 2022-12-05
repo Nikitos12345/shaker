@@ -119,7 +119,7 @@ return [
         ],
 
         'cocktails-parser' => [
-            'driver' => 'single',
+            'driver' => 'daily',
             'path' => storage_path('logs/parser/cocktails.log'),
         ],
     ],
