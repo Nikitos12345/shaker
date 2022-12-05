@@ -3,6 +3,7 @@
 namespace Tests\Unit;
 
 use App\Helpers\BinarySearch;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 
@@ -60,10 +61,6 @@ class BinarySearchTest extends TestCase
                 '0',
                 ['0', '1', '2']
             ],
-            [
-                '',
-                ['']
-            ]
         ];
     }
 
@@ -122,8 +119,8 @@ class BinarySearchTest extends TestCase
     public function test_return_null_if_key_dont_exist(string|int|float $needle, array $array): void
     {
         $binarySearch = new BinarySearch();
-
-        $this->assertEquals(null, $binarySearch($needle, $array, 'test'));
+        $this->expectException(InvalidArgumentException::class);
+        $binarySearch($needle, $array, 'test');
     }
 
     /**

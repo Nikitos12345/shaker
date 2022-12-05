@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace App\Helpers;
 
 use App\Interfaces\ArraySearchContract;
-use Illuminate\Support\Arr;
+use App\Traits\ValidateUsableValue;
 use Illuminate\Support\ItemNotFoundException;
 use InvalidArgumentException;
 
 final class BinarySearch implements ArraySearchContract
 {
+    use ValidateUsableValue {
+        getValidValue as private;
+    }
+
     /** @var array<string|int|float|object|array<string|int|float>> $haystack */
     public array $haystack = [];
     public string|int|float $needle = '';
@@ -52,17 +56,9 @@ final class BinarySearch implements ArraySearchContract
      */
     private function sort(array $sortableArray, string $key): array
     {
-        if (empty($key)) {
-            return array_values(Arr::sort($sortableArray));
-        }
+        $qsort = new QuickSort();
 
-
-        return array_values(
-            Arr::sort(
-                $sortableArray,
-                fn(mixed $value) => is_array($value) ? $value[$key] : (is_object($value) ? $value->$key : $value)
-            )
-        );
+        return $qsort->sort($sortableArray, $key);
     }
 
     /**
@@ -76,13 +72,13 @@ final class BinarySearch implements ArraySearchContract
         while ($low <= $high) {
             $halfArrayLength = intval(($low + $high) / 2);
 
-            $middleValues = $this->getMiddleValue($halfArrayLength);
+            $middleValue = $this->getMiddleValue($halfArrayLength);
 
-            if ($this->needle === $middleValues) {
+            if ($this->needle === $middleValue) {
                 return $this->haystack[$halfArrayLength];
             }
 
-            if ($this->needle > $middleValues) {
+            if ($this->needle > $middleValue) {
                 $low = $halfArrayLength + 1;
                 continue;
             }
@@ -101,40 +97,6 @@ final class BinarySearch implements ArraySearchContract
     {
         $middleValue = $this->haystack[$middleKey];
 
-        if (empty($this->key)) {
-            return $middleValue;
-        }
-
-        if (is_numeric($middleValue)) {
-            throw new InvalidArgumentException();
-        }
-
-        if (is_string($middleValue)) {
-            throw new InvalidArgumentException();
-        }
-
-        if (is_array($middleValue) && !isset($middleValue[$this->key])) {
-            throw new ItemNotFoundException();
-        }
-
-        if (is_object($middleValue) && !isset($middleValue->{$this->key})) {
-            throw new ItemNotFoundException();
-        }
-
-        $middleValue = is_array($middleValue) ? $middleValue[$this->key] : $middleValue->{$this->key};
-
-        if (is_object($middleValue)) {
-            throw new InvalidArgumentException();
-        }
-
-        if (is_array($middleValue)) {
-            throw new InvalidArgumentException();
-        }
-
-        if (is_bool($middleValue)) {
-            throw new InvalidArgumentException();
-        }
-
-        return $middleValue;
+        return $this->getValidValue($middleValue);
     }
 }
