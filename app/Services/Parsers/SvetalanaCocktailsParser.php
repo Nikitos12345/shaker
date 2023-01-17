@@ -51,7 +51,15 @@ class SvetalanaCocktailsParser implements CocktailParser
             }
 
             $recipe->taste = $recipeData->taste;
-            $recipe->save();
+            try {
+                $recipe->save();
+            } catch (Throwable $exception) {
+                logger()
+                    ->channel('cocktails-parser')
+                    ->error($exception);
+                DB::rollBack();
+                continue;
+            }
 
             foreach ($recipeData->ingredients as $ingredientData) {
                 $existIngredient = $ingredients->fastSearch($ingredientData->ingredient, 'name');

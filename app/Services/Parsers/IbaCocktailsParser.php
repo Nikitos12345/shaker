@@ -57,7 +57,15 @@ class IbaCocktailsParser implements CocktailParser
             $recipe->category = $recipeData->category ?? null;
             $recipe->preparation = $recipeData->preparation ?? null;
 
-            $recipe->save();
+            try {
+                $recipe->save();
+            } catch (Throwable $exception) {
+                logger()
+                    ->channel('cocktails-parser')
+                    ->error($exception);
+                DB::rollBack();
+                continue;
+            }
 
             if (!$isNewRecipe) {
                 continue;
