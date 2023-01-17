@@ -71,7 +71,7 @@ class IbaCocktailsParser implements CocktailParser
                             ->channel('cocktails-parser')
                             ->error("Can't parse data", json_decode(json_encode($ingredientData), true));
                         DB::rollBack();
-                        continue;
+                        break;
                     }
                 }
 
